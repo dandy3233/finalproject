@@ -1,0 +1,16 @@
+@import url('https://fonts.googleapis.com/css2?family=Rubik+Burned&display=swap');
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+.font-african {
+    font-family: 'Rubik Burned', system-ui;
+    letter-spacing: 0.1rem;
+    text-shadow: 
+        2px 2px 0 #f59e0b,
+        4px 4px 0 #dc2626;
+    background: linear-gradient(to right, #15803d, #ca8a04);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+}
