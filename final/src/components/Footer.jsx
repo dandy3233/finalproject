@@ -5,7 +5,7 @@ function Footer() {
     <div>
       <footer className="bg-gray-800 text-white py-3">
         <div className="container mx-auto text-center">
-          <p>&copy; African Fashion</p>
+          <p>&copy; African Star 🌟</p>
         </div>
       </footer>
     </div>

@@ -21,13 +21,12 @@ function CartScreen() {
 
   const cart = useSelector((state) => state.cart);
   const { cartItems, loading, error } = cart;
+  const userLogin = useSelector((state) => state.userLogin);
+  const { userInfo } = userLogin;
 
   const removeFromCartHandler = (id) => {
     dispatch(removeFromCart(id));
   };
-
-  const userLogin = useSelector((state) => state.userLogin);
-  const { userInfo } = userLogin;
 
   const checkoutHandler = () => {
     if (!userInfo) {
@@ -36,6 +35,16 @@ function CartScreen() {
       navigate('/shipping');
     }
   };
+
+  // ✅ Order Summary Calculations (Ensure price is a number)
+  const TAX_RATE = 0.1;
+  const FREE_SHIPPING_THRESHOLD = 100;
+  const SHIPPING_COST = 10;
+
+  const subtotal = cartItems.reduce((acc, item) => acc + (Number(item.price) || 0) * item.qty, 0);
+  const shippingFee = subtotal > FREE_SHIPPING_THRESHOLD ? 0 : SHIPPING_COST;
+  const tax = subtotal * TAX_RATE;
+  const total = subtotal + tax + shippingFee;
 
   return (
     <div className="max-w-6xl mx-auto p-6">
@@ -55,47 +64,27 @@ function CartScreen() {
             ) : (
               <div className="space-y-4">
                 {cartItems.map((item) => (
-                  <div
-                    key={item.product}
-                    className="flex items-center justify-between p-4 border rounded-lg shadow-md transition hover:shadow-lg bg-white"
-                  >
+                  <div key={item.product} className="flex items-center justify-between p-4 border rounded-lg shadow-md bg-white">
                     <div className="flex items-center space-x-4">
                       <Link to={`/product/${item.product}`}>
-                        <img
-                          src={item.image}
-                          alt={item.name}
-                          className="w-24 h-24 object-cover rounded-md shadow-sm"
-                        />
+                        <img src={item.image} alt={item.name} className="w-24 h-24 object-cover rounded-md" />
                       </Link>
                       <div className="flex flex-col">
                         <Link className="text-lg font-semibold text-gray-800 hover:text-green-600" to={`/product/${item.product}`}>
                           {item.name}
                         </Link>
                         <span className="text-sm text-gray-500">
-                          ${item.price ? Number(item.price).toFixed(2) : "0.00"}
+                          ${Number(item.price).toFixed(2)}
                         </span>
                       </div>
                     </div>
                     <div className="flex items-center space-x-4">
-                      <div className="flex items-center space-x-2 border border-gray-300 rounded-lg px-3 py-1 shadow-sm bg-gray-100">
-                        <button
-                          className="text-gray-700 px-2 py-1 rounded-full bg-gray-200 hover:bg-gray-300 transition"
-                          onClick={() => item.qty > 1 && dispatch(addToCart(item.product, item.qty - 1))}
-                        >
-                          -
-                        </button>
+                      <div className="flex items-center border border-gray-300 rounded-lg px-3 py-1 bg-gray-100">
+                        <button className="text-gray-700 px-2 py-1" onClick={() => item.qty > 1 && dispatch(addToCart(item.product, item.qty - 1))}>-</button>
                         <span className="text-lg font-semibold">{item.qty}</span>
-                        <button
-                          className="text-gray-700 px-2 py-1 rounded-full bg-gray-200 hover:bg-gray-300 transition"
-                          onClick={() => item.qty < item.countInStock && dispatch(addToCart(item.product, item.qty + 1))}
-                        >
-                          +
-                        </button>
+                        <button className="text-gray-700 px-2 py-1" onClick={() => item.qty < item.countInStock && dispatch(addToCart(item.product, item.qty + 1))}>+</button>
                       </div>
-                      <button
-                        className="bg-red-500 text-white p-2 rounded-full hover:bg-red-600 transition shadow-md"
-                        onClick={() => removeFromCartHandler(item.product)}
-                      >
+                      <button className="bg-red-500 text-white p-2 rounded-full" onClick={() => removeFromCartHandler(item.product)}>
                         <i className="fa fa-trash"></i>
                       </button>
                     </div>
@@ -105,28 +94,29 @@ function CartScreen() {
             )}
           </div>
 
+          {/* ✅ Order Summary */}
           <div className="p-6 border rounded-lg shadow-lg bg-gray-50">
             <h1 className="text-2xl font-bold text-center mb-6">Order Summary</h1>
             <div className="space-y-4">
               <div className="flex justify-between">
-                <span className="text-gray-700">Subtotal</span>
-                <span className="text-gray-900 font-medium">
-                  {cartItems.reduce((acc, item) => acc + item.qty, 0)} items
-                </span>
+                <span>Subtotal</span>
+                <span>${subtotal.toFixed(2)}</span>
+              </div>
+              <div className="flex justify-between">
+                <span>Tax (10%)</span>
+                <span>${tax.toFixed(2)}</span>
+              </div>
+              <div className="flex justify-between">
+                <span>Shipping</span>
+                <span>{shippingFee === 0 ? "Free" : `$${shippingFee.toFixed(2)}`}</span>
               </div>
               <div className="flex justify-between text-lg font-semibold">
                 <span>Total</span>
-                <span className="text-green-600">
-                  ${cartItems.reduce((acc, item) => acc + item.price * item.qty, 0).toFixed(2)}
-                </span>
+                <span className="text-green-600">${total.toFixed(2)}</span>
               </div>
             </div>
-            <button
-              type="button"
-              className="w-full py-3 mt-6 bg-green-500 text-white rounded-lg hover:bg-green-600 transition shadow-md disabled:opacity-50"
-              disabled={cartItems.length === 0}
-              onClick={checkoutHandler}
-            >
+
+            <button type="button" className="w-full py-3 mt-6 bg-green-500 text-white rounded-lg" disabled={cartItems.length === 0} onClick={checkoutHandler}>
               Proceed to Checkout
             </button>
           </div>
