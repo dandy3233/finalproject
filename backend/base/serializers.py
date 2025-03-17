@@ -57,6 +57,9 @@ class OrderSerializer(serializers.ModelSerializer):
     class Meta:
         model = Order
         fields = '__all__'
+        # read_only_fields = ('user', 'created_at')  # Auto-populated fields
 
     def get_user(self, obj):
         return obj.user.username if obj.user else None
+    
+    
