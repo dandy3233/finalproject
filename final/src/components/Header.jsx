@@ -140,7 +140,8 @@ function Header() {
       </div>
 
       {/* Sticky Main Navbar */}
-      <nav className="bg-white/70 backdrop-blur-md shadow-md py-4 px-6 flex justify-between items-center max-w-screen-xl mx-auto fixed left-0 top-14 w-full z-50 mt-14 sm:mt-0">
+      <nav className="bg-white/70 backdrop-blur-md shadow-md py-4 px-6 flex justify-between items-center max-w-screen-xl mx-auto fixed right-25 top-14 w-[calc(100%-2.5rem)] z-50 mt-14 sm:mt-0">
+
         {/* Dropdown Categories */}
         <div className="relative">
           <button 
