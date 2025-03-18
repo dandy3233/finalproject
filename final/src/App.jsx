@@ -15,6 +15,7 @@ import PlaceOrderScreen from './screens/PlaceOrder';
 import CategoryScreen from './screens/CategoryScreen'; // Import the new CategoryScreen
 import WishlistScreen from './screens/WishlistScreen';  // Import WishlistScreen
 import SearchScreen from "./screens/SearchScreen";
+import AllProductsScreen from './screens/AllProductsScreen'; 
 
 
 function App() {
@@ -41,6 +42,8 @@ function App() {
           </Routes>
         </div>
       </main>
+      <WishlistScreen />
+      <CategoryScreen />
       <Footer />
     </Router>
   )
