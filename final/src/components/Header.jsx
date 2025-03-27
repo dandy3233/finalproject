@@ -53,10 +53,18 @@ function Header() {
             African <span className="animate-pulse">Star 🌟</span>
           </Link>
 
-          <div className="hidden sm:flex space-x-6 text-sm">
+          {/* <div className="hidden sm:flex space-x-6 text-sm">
             <p className="flex items-center gap-2">📞 01734360072</p>
             <p className="flex items-center gap-2">✉️ dandytakilu@gmail.com</p>
-          </div>
+          </div> */}
+
+           {/* Navigation Links */}
+        <div className="hidden md:flex space-x-6 text-lg">
+          <Link to="/" className="hover:text-green-500 transition">Home</Link>
+          <Link to="/CategoryScreen" className="hover:text-green-500 transition">Catalog</Link>
+          <Link to="/about" className="hover:text-green-500 transition">About Us</Link>
+          <Link to="/contact" className="hover:text-green-500 transition">Contact</Link>
+        </div>
 
           {/* Search Bar */}
           <div className="flex items-center space-x-4 sm:space-x-6 text-lg w-full sm:w-auto">
@@ -161,12 +169,12 @@ function Header() {
         </div>
 
         {/* Navigation Links */}
-        <div className="hidden md:flex space-x-6 text-lg">
+        {/* <div className="hidden md:flex space-x-6 text-lg">
           <Link to="/" className="hover:text-green-500 transition">Home</Link>
-          <Link to="/catalog" className="hover:text-green-500 transition">Catalog</Link>
+          <Link to="/CategoryScreen" className="hover:text-green-500 transition">Catalog</Link>
           <Link to="/about" className="hover:text-green-500 transition">About Us</Link>
           <Link to="/contact" className="hover:text-green-500 transition">Contact</Link>
-        </div>
+        </div> */}
 
         {/* Cart & Icons */}
         <div className="flex items-center space-x-6 text-lg">

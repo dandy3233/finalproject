@@ -15,7 +15,8 @@ import PlaceOrderScreen from './screens/PlaceOrder';
 import CategoryScreen from './screens/CategoryScreen'; // Import the new CategoryScreen
 import WishlistScreen from './screens/WishlistScreen';  // Import WishlistScreen
 import SearchScreen from "./screens/SearchScreen";
-import AllProductsScreen from './screens/AllProductsScreen'; 
+// import AllProductsScreen from './screens/AllProductsScreen'; 
+import PaymentSuccessScreen from './screens/PaymentSuccessScreen';
 
 
 function App() {
@@ -39,10 +40,13 @@ function App() {
             <Route path="/category/:category" element={<CategoryScreen />} />
             <Route path="/wishlist" element={<WishlistScreen />} /> {/* Add the Wishlist route */}
             <Route path="/search" element={<SearchScreen />} />
+            <Route path="/CategoryScreen" element={<CategoryScreen />} />
+            <Route path="/success" element={<PaymentSuccessScreen />} />
           </Routes>
         </div>
+        <WishlistScreen />
       </main>
-      <WishlistScreen />
+      {/* <WishlistScreen /> */}
       <CategoryScreen />
       <Footer />
     </Router>

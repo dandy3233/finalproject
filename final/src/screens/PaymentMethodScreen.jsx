@@ -21,11 +21,18 @@ function PaymentMethodScreen() {
         }
     }, [shippingAddress, navigate]);
 
+    // const submitHandler = (e) => {
+    //     e.preventDefault();
+    //     dispatch(savePaymentMethod(paymentMethod));
+    //     navigate("/placeorder");
+    // };
+
     const submitHandler = (e) => {
         e.preventDefault();
         dispatch(savePaymentMethod(paymentMethod));
-        navigate("/placeorder");
+        navigate("/success"); // Redirect to success screen
     };
+    
 
     return (
         <div className="max-w-lg mx-auto p-6 bg-white shadow-md rounded-lg">

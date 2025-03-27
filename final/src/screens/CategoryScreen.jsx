@@ -7,12 +7,29 @@ import Loader from "../components/Loader";
 import Message from "../components/Message";
 
 const categories = [
-  { name: "Shoes", image: "https://images.unsplash.com/photo-1510812431401-41d2bd2722f3?q=80&w=2940&auto=format&fit=crop" },
-  { name: "Accessories", image: "https://images.unsplash.com/photo-1504675099198-7023dd85f5a3?q=80&w=2940&auto=format&fit=crop" },
-  { name: "Men's Clothing", image: "https://images.unsplash.com/photo-1571104508999-893933ded431?q=80&w=2940&auto=format&fit=crop" },
-  { name: "Dandy", image: "https://images.unsplash.com/photo-1626897505254-e0f811aa9bf7?q=80&w=2940&auto=format&fit=crop" },
-  { name: "Electronics", image: "https://images.unsplash.com/photo-1693680501357-a342180f1946?q=80&w=2940&auto=format&fit=crop" }
+  {
+    name: "Shoes",
+    image: "https://images.unsplash.com/photo-1525966222134-fcfa99b8ae77?q=80&w=2940&auto=format&fit=crop",
+  },
+  {
+    name: "Accessories",
+    image: "https://images.unsplash.com/photo-1522312346375-d1a52e2b99b3?q=80&w=2940&auto=format&fit=crop",
+  },
+  {
+    name: "Men's Clothing",
+    image: "https://images.unsplash.com/photo-1520975916090-3105956dac38?q=80&w=2940&auto=format&fit=crop",
+  },
+  {
+    name: "Dandy",
+    image: " https://images.unsplash.com/photo-1525966222134-fcfa99b8ae77?q=80&w=2940&auto=format&fit=crop",
+  },
+
+  {
+    name: "Electronics",
+    image: "https://images.unsplash.com/photo-1518770660439-4636190af475?q=80&w=2940&auto=format&fit=crop",
+  },
 ];
+
 
 const AllProductsScreen = () => {
   const { category } = useParams();
