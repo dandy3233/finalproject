@@ -3,6 +3,7 @@ from django.contrib.auth.models import User # type: ignore
 from .models import Product
 from rest_framework_simplejwt.tokens import RefreshToken # type: ignore
 from base.models import Order
+from base.models import Advertising
 
 
 class UserSerializer(serializers.ModelSerializer):
@@ -61,5 +62,11 @@ class OrderSerializer(serializers.ModelSerializer):
 
     def get_user(self, obj):
         return obj.user.username if obj.user else None
+    
+class AdvertisingSerializer(serializers.ModelSerializer):
+    
+    class Meta:
+        model = Advertising
+        fields = '__all__'
     
     

@@ -24,6 +24,8 @@ urlpatterns = [
     path('api/products/', include('base.urls.product_urls')),
     # path('api/orders/', include(router.urls)),  # Use router for viewset
     path('api/products/', include('base.urls.product_urls')),
+    path('api/advertising/', include('base.urls.advertising_urls')),
+
 
 
 ]

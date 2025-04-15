@@ -17,16 +17,20 @@ import WishlistScreen from './screens/WishlistScreen';  // Import WishlistScreen
 import SearchScreen from "./screens/SearchScreen";
 // import AllProductsScreen from './screens/AllProductsScreen'; 
 import PaymentSuccessScreen from './screens/PaymentSuccessScreen';
+import Contact from './components/Contact'
+import Advertising from './components/advertising';
 
 
 function App() {
   return (
     <Router>
       <Header />
+      <Advertising />
       <main className="py-3">
         <div className="max-w-screen-xl mx-auto px-4">
           <Routes>
             <Route path="/" element={<HomeScreen />} />
+            <Route path="/advertising" element={<Advertising />} />
             <Route path="/product/:id" element={<ProductScreen />} />
             <Route path="/cart/:id?" element={<CartScreen />} />
             <Route path="/login" element={<UserLoginScreen />} />
@@ -42,12 +46,14 @@ function App() {
             <Route path="/search" element={<SearchScreen />} />
             <Route path="/CategoryScreen" element={<CategoryScreen />} />
             <Route path="/success" element={<PaymentSuccessScreen />} />
+            <Route path="/Contact" element={<Contact />} />
           </Routes>
         </div>
         <WishlistScreen />
       </main>
       {/* <WishlistScreen /> */}
       <CategoryScreen />
+      {/* <Advertising /> */}
       <Footer />
     </Router>
   )
