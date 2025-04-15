@@ -81,3 +81,23 @@ class ShippingAddress(models.Model):
     
     def __str__(self):
         return str(self.address)
+    
+    
+class Advertising(models.Model):
+    SECTION_CHOICES = [
+        ('superDeals', 'Super Deals'),
+        ('bigSave', 'Big Save'),
+    ]
+
+    name = models.CharField(max_length=255)
+    image = models.ImageField(null =True, blank =True)
+
+    original_price = models.DecimalField(max_digits=10, decimal_places=2)
+    discounted_price = models.DecimalField(max_digits=10, decimal_places=2)
+    discount_percentage = models.PositiveIntegerField(blank=True, null=True)
+    save_amount = models.DecimalField(max_digits=10, decimal_places=2, blank=True, null=True)
+    secondary_price = models.DecimalField(max_digits=10, decimal_places=2, blank=True, null=True)
+    section = models.CharField(max_length=20, choices=SECTION_CHOICES)
+
+    def __str__(self):
+        return f"{self.name} ({self.section})"
