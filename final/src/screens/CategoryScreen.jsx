@@ -68,9 +68,12 @@ const AllProductsScreen = () => {
   }, [products, category]);
 
   return (
+    
+      
+    
     <section className="bg-white py-4">
-      <div className="max-w-screen-xl mx-auto sm:py-4 lg:px-6 px-2">
-        <h2 className="text-2xl font-bold mb-4 capitalize">
+      <div className="max-w-screen-xl text-center mx-auto sm:py-4 lg:px-6 px-2">
+        <h2 className=" mb-4 capitalize text-3xl sm:text-4xl font-extrabold text-gray-900 tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-green-600 to-teal-500">
           {category ? category.replace("-", " ") : "Shop by category"}
         </h2>
 

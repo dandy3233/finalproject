@@ -42,7 +42,12 @@ function WishlistScreen() {
   return (
     <section className="bg-white py-4">
       <div className="max-w-screen-xl mx-auto sm:py-4 lg:px-6 px-2">
-      <h1 className="text-2xl font-semibold text-gray-800 mb-4">Your Wishlist</h1>
+      <div className="text-center mb-6 sm:mb-8">
+      <h1 className="text-3xl sm:text-4xl font-extrabold text-gray-900 tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-green-600 to-teal-500">
+      Your Wishlist
+      </h1>
+    </div>
+      {/* <h1 className="text-2xl font-semibold text-gray-800 mb-4">Your Wishlist</h1> */}
       {loading ? (
         <p className="text-gray-500">Loading your wishlist...</p>
       ) : error ? (
