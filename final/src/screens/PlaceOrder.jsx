@@ -23,10 +23,11 @@ const PlaceOrder = () => {
     taxPrice: '0.00',
     shippingPrice: '0.00',
     totalPrice: '0.00',
-    isPaid: false,   // Initially set to false
-    isDelivered: false  // Initially set to false
+    isPaid: false,
+    isDelivered: false
   });
 
+  const [orderNumber, setOrderNumber] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
 
@@ -60,7 +61,7 @@ const PlaceOrder = () => {
         totalPrice: parseFloat(formData.totalPrice)
       };
 
-      const orderData = { 
+      const orderData = {
         paymentMethod,
         ...formData,
         ...numericData,
@@ -72,35 +73,40 @@ const PlaceOrder = () => {
         }))
       };
 
-      // Send order data to the backend API
       const response = await axios.post(
         'http://localhost:8000/api/orders/',
         orderData,
         {
-          headers: { 
+          headers: {
             'X-CSRFToken': document.cookie.match(/csrftoken=([^;]+)/)?.[1],
             'Content-Type': 'application/json'
           }
         }
       );
 
+      // Debugging: Log the full response to check its structure
+      console.log('Response:', response);
+
       if (response.status === 201) {
         const completeOrderData = {
-          ...response.data,
+          ...response.data.data,  // ⬅️ Adjust this line if necessary
           ...numericData,
           paymentMethod
         };
 
-        alert(`Order created! ID: ${completeOrderData._id}`);
+        console.log('Order Data:', completeOrderData);  // Log to see the order data
+
+        setOrderNumber(completeOrderData.orderNumber || completeOrderData._id);
+        alert(`Order created! Number: ${completeOrderData.orderNumber || completeOrderData._id}`);
+
         generatePDF(completeOrderData);
 
-        // Reset form data
         setFormData({
           taxPrice: '0.00',
           shippingPrice: '0.00',
           totalPrice: '0.00',
-          isPaid: false,   // Resetting to false after submission
-          isDelivered: false  // Resetting to false after submission
+          isPaid: false,
+          isDelivered: false
         });
       }
     } catch (error) {
@@ -108,60 +114,65 @@ const PlaceOrder = () => {
     } finally {
       setLoading(false);
     }
+};
+
+
+const generatePDF = (order) => {
+  const doc = new jsPDF();
+
+  const drawStyledText = (text, x, y) => {
+    doc.setFont("helvetica", "bold");
+    doc.setFontSize(28);
+    doc.setTextColor(220, 38, 38);
+    doc.text(text, x + 2, y + 2);
+    doc.setTextColor(245, 158, 11);
+    doc.text(text, x + 1, y + 1);
+    doc.setTextColor(21, 128, 61);
+    doc.text(text, x, y);
+    doc.setTextColor(202, 138, 4);
+    doc.text(text, x, y - 0.5);
   };
 
-  const generatePDF = (order) => {
-    const doc = new jsPDF();
-    
-    const drawStyledText = (text, x, y) => {
-      doc.setFont("helvetica", "bold");
-      doc.setFontSize(28);
-      doc.setTextColor(220, 38, 38);
-      doc.text(text, x + 2, y + 2);
-      doc.setTextColor(245, 158, 11);
-      doc.text(text, x + 1, y + 1);
-      doc.setTextColor(21, 128, 61);
-      doc.text(text, x, y);
-      doc.setTextColor(202, 138, 4);
-      doc.text(text, x, y - 0.5);
-    };
+  const formatCurrency = (value) =>
+    typeof value === 'number' ? `$${value.toFixed(2)}` : `$${value || '0.00'}`;
 
-    const formatCurrency = (value) => 
-      typeof value === 'number' ? `$${value.toFixed(2)}` : `$${value || '0.00'}`;
+  drawStyledText("African Star 🌟", 20, 20);
+  doc.setFontSize(14);
+  doc.setTextColor(0, 0, 0);
+  doc.text("Order Summary", 20, 35);
+  doc.setLineWidth(0.5);
+  doc.line(20, 40, 190, 40);
 
-    drawStyledText("African Star 🌟", 20, 20);
-    doc.setFontSize(14);
-    doc.setTextColor(0, 0, 0);
-    doc.text("Order Summary", 20, 35);
-    doc.setLineWidth(0.5);
-    doc.line(20, 40, 190, 40);
+  // Ensure 'orderNumber' is not null or undefined, fallback to "N/A"
+  const orderNumber = order.orderNumber || "N/A";  // Safely fallback to "N/A" if no orderNumber is found
+  const paymentMethod = order.paymentMethod || "N/A";  // Ensure paymentMethod is not empty
 
-    autoTable(doc, {
-      startY: 45,
-      headStyles: { 
-        fillColor: [0, 102, 204], 
-        textColor: 255, 
-        fontSize: 12 
-      },
-      bodyStyles: { fontSize: 10 },
-      alternateRowStyles: { fillColor: [240, 240, 240] },
-      margin: { top: 50 },
-      head: [["Field", "Value"]],
-      body: [
-        ["Order ID", order._id || "N/A"],
-        ["Payment Method", paymentMethod || "N/A"],
-        ["Tax Price", formatCurrency(order.taxPrice)],
-        ["Shipping Price", formatCurrency(order.shippingPrice)],
-        ["Total Price", formatCurrency(order.totalPrice)],
-        // Fix here: Dynamically set 'Yes' or 'No' based on the state
-        ["Paid", order.isPaid ? "Yes" : "No"],  
-        ["Delivered", order.isDelivered ? "Yes" : "No"],  
-      ],
-      theme: "grid",
-    });
+  autoTable(doc, {
+    startY: 45,
+    headStyles: {
+      fillColor: [0, 102, 204],
+      textColor: 255,
+      fontSize: 12
+    },
+    bodyStyles: { fontSize: 10 },
+    alternateRowStyles: { fillColor: [240, 240, 240] },
+    margin: { top: 50 },
+    head: [["Field", "Value"]],
+    body: [
+      ["Order Number", orderNumber],  // Make sure this always has a value, fallback to "N/A"
+      ["Payment Method", paymentMethod],  // Make sure this always has a value, fallback to "N/A"
+      ["Tax Price", formatCurrency(order.taxPrice)],
+      ["Shipping Price", formatCurrency(order.shippingPrice)],
+      ["Total Price", formatCurrency(order.totalPrice)],
+      ["Paid", order.isPaid ? "Yes" : "No"],
+      ["Delivered", order.isDelivered ? "Yes" : "No"]
+    ],
+    theme: "grid",
+  });
 
-    doc.save(`Order_${order._id || "Report"}.pdf`);
-  };
+  doc.save(`Order_${orderNumber || "Report"}.pdf`);  // Ensure the file name uses a valid order number or fallback
+};
+
 
   return (
     <>
@@ -180,6 +191,16 @@ const PlaceOrder = () => {
         )}
 
         <form onSubmit={submitOrderHandler} className="space-y-4">
+          <div>
+            <label className="block text-sm font-medium mb-1">Order Number</label>
+            <input
+              type="text"
+              value={orderNumber}
+              className="w-full p-2 border rounded bg-gray-100"
+              readOnly
+            />
+          </div>
+
           <div>
             <label className="block text-sm font-medium mb-1">Payment Method</label>
             <input
@@ -217,8 +238,8 @@ const PlaceOrder = () => {
                 <input
                   type="checkbox"
                   name={field}
-                  checked={formData[field]}  // Bind checkbox state to formData
-                  onChange={handleInputChange}  // Handle checkbox change
+                  checked={formData[field]}
+                  onChange={handleInputChange}
                   className="mr-2"
                 />
                 {field.replace('is', '')}

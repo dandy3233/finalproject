@@ -72,7 +72,7 @@ const OrderList = () => {
           <table className="w-full border-collapse border border-gray-300 text-sm">
             <thead>
               <tr className="bg-gray-200">
-                {["ID", "User", "Payment Method", "Tax", "Shipping", "Total", "Paid", "Paid At", "Delivered", "Delivered At", "Created At"].map((header) => (
+                {["Order Number", "User", "Payment Method", "Tax", "Shipping", "Total", "Paid", "Paid At", "Processed Delivery","Delivered", "Delivered At", "Created At"].map((header) => (
                   <th key={header} className="p-2 border text-left">{header}</th>
                 ))}
               </tr>
@@ -80,7 +80,7 @@ const OrderList = () => {
             <tbody>
               {orders.map((order) => (
                 <tr key={order._id} className="border hover:bg-gray-100">
-                  <td className="p-2 border">{order._id}</td>
+                  <td className="p-2 border">{order.orderNumber}</td>
                   <td className="p-2 border">
                     {order.user ? order.user.username || "No Username" : "Unknown"}
                   </td>

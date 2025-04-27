@@ -4,6 +4,9 @@ from unicodedata import name
 from django.db import models # type: ignore
 from django.contrib.auth.models import User # type: ignore
 from django.conf import settings # type: ignore
+from django.utils.timezone import now
+from django.db.models.signals import pre_save
+from django.dispatch import receiver
 
 
 class Product(models.Model):
@@ -42,19 +45,42 @@ class Review(models.Model):
 
 
 class Order(models.Model):
-    user = models.ForeignKey(User, on_delete=models.SET_NULL, null =True)
-    paymentMethod = models.CharField(max_length =200 ,null =True, blank =True)
-    taxPrice= models.DecimalField(max_digits = 7,decimal_places=2)
-    shippingPrice= models.DecimalField(max_digits = 7,decimal_places=2)
-    totalPrice= models.DecimalField(max_digits = 7,decimal_places=2)
-    isPaid = models.BooleanField(default =False)
-    paidAt = models.DateTimeField(auto_now_add =False, null =True, blank =True)
-    isDelivered = models.BooleanField(default =False)
-    deliveredAt= models.DateTimeField(auto_now_add =False, null =True, blank =True)
-    createdAt= models.DateTimeField(auto_now_add =True )
-    _id = models.AutoField(primary_key = True,editable = False)
+    user = models.ForeignKey(User, on_delete=models.SET_NULL, null=True)
+    paymentMethod = models.CharField(max_length=200, null=True, blank=True)
+    taxPrice = models.DecimalField(max_digits=7, decimal_places=2)
+    shippingPrice = models.DecimalField(max_digits=7, decimal_places=2)
+    totalPrice = models.DecimalField(max_digits=7, decimal_places=2)
+    isPaid = models.BooleanField(default=False)
+    paidAt = models.DateTimeField(null=True, blank=True)
+    isDelivered = models.BooleanField(default=False)
+    deliveredAt = models.DateTimeField(null=True, blank=True)
+    createdAt = models.DateTimeField(auto_now_add=True)
+    orderNumber = models.CharField(max_length=20, null=True, blank=True, unique=True)
+    _id = models.AutoField(primary_key=True, editable=False)
+
     def __str__(self):
-        return f"Order {self._id}"
+        return self.orderNumber or f"Order {self._id}"
+
+
+@receiver(pre_save, sender=Order)
+def generate_order_number(sender, instance, **kwargs):
+    if not instance.orderNumber:
+        today_str = now().strftime('%Y%m%d')
+        prefix = f"ORD-{today_str}"
+
+        last_order = (
+            Order.objects.filter(orderNumber__startswith=prefix)
+            .order_by('-createdAt')
+            .first()
+        )
+
+        if last_order and last_order.orderNumber:
+            last_number = int(last_order.orderNumber[-4:])
+        else:
+            last_number = 0
+
+        instance.orderNumber = f"{prefix}-{last_number + 1:04d}"
+
 
 
 class OrderItem(models.Model):
@@ -101,3 +127,20 @@ class Advertising(models.Model):
 
     def __str__(self):
         return f"{self.name} ({self.section})"
+    
+
+
+class DeliveryOrder(models.Model):
+    user = models.ForeignKey(User, on_delete=models.SET_NULL, null=True)
+    firstName = models.CharField(max_length=100)
+    lastName = models.CharField(max_length=100)
+    phone = models.CharField(max_length=20)
+    email = models.EmailField()
+    streetAddress = models.CharField(max_length=255)
+    city = models.CharField(max_length=100)
+    state = models.CharField(max_length=100)
+    country = models.CharField(max_length=100)
+    instructions = models.TextField(blank=True, null=True)
+
+    def __str__(self):
+        return f"{self.firstName} {self.lastName}"

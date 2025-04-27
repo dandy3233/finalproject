@@ -30,9 +30,17 @@ function CartScreen() {
 
   const checkoutHandler = () => {
     if (!userInfo) {
-      navigate("/login?redirect=shipping");
+      navigate("/login?redirect=/shipping");
     } else {
-      navigate("/shipping");
+      navigate("/shipping", {
+        state: {
+          cartItems,
+          subtotal,
+          tax,
+          shippingFee,
+          total
+        }
+      });
     }
   };
 
