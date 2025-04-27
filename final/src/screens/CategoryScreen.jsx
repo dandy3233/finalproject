@@ -9,41 +9,42 @@ import Message from "../components/Message";
 const categories = [
   {
     name: "Shoes",
-    image: "https://images.unsplash.com/photo-1580502304784-2d6e3d17c5ab?auto=format&fit=crop&w=800&q=80",
+    image: "/images/category/shoes.png",
   },
   {
     name: "Accessories",
-    image: "https://images.unsplash.com/photo-1602810310591-29c6358d6f3f?auto=format&fit=crop&w=800&q=80",
+    image: "/images/category/accessories.png",
   },
   {
     name: "Men's Clothing",
-    image: "https://images.unsplash.com/photo-1520975916090-3105956dac38?auto=format&fit=crop&w=800&q=80",
+    image: "/images/category/mens_clothing.png",
   },
   {
     name: "Dandy",
-    image: "https://images.unsplash.com/photo-1512436991641-6745cdb1723f?auto=format&fit=crop&w=800&q=80",
+    image: "/images/category/dandy.jpg",
   },
   {
     name: "Electronics",
-    image: "https://images.unsplash.com/photo-1519389950473-47ba0277781c?auto=format&fit=crop&w=800&q=80",
+    image: "/images/category/electronics.png",
   },
   {
     name: "Phone and Telecommunications",
-    image: "https://images.unsplash.com/photo-1510552776732-01acc9a4c6b6?auto=format&fit=crop&w=800&q=80",
+    image: "/images/category/phone_telecommunications.png",
   },
   {
     name: "Home & Garden",
-    image: "https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=800&q=80",
+    image: "/images/category/home_garden.png",
   },
   {
     name: "Consumer Electronics",
-    image: "https://images.unsplash.com/photo-1581092334641-4c4c06c9f1d1?auto=format&fit=crop&w=800&q=80",
+    image: "/images/category/consumer_electronics.png",
   },
   {
     name: "Hair Extensions & Wigs",
-    image: "https://images.unsplash.com/photo-1594824476965-123bba1af8ac?auto=format&fit=crop&w=800&q=80",
+    image: "/images/category/hair_extensions_wigs.png",
   },
 ];
+
 
 const AllProductsScreen = () => {
   const { category } = useParams();

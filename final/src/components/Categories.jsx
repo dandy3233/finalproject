@@ -23,7 +23,7 @@ const Categories = () => {
       <h2 className="text-lg font-bold mb-3">All Categories</h2>
       <ul>
         {categories.map((category, index) => (
-          <li key={index} className="py-2 hover:text-green-500 transition">
+          <li key={index} className="py-2 hover:text-green-900 transition">
             <Link to={`/category/${category.name.toLowerCase().replace(/\s+/g, '-')}`}>
               {category.icon} {category.name}
             </Link>

@@ -8,7 +8,7 @@ from django.conf.urls.static import static
 # from base.views.product_views import search_products  # Instead of base.views
 
 from base.views.product_views import searchProducts 
-
+from base.views.DeliveryOrder import DeliveryOrderSet  # Make sure you import it
 
 from base.views.order_views import OrderViewSet  # Correct import for your ViewSet
 from rest_framework.routers import DefaultRouter
@@ -16,6 +16,8 @@ from rest_framework.routers import DefaultRouter
 # Initialize router for viewset
 router = DefaultRouter()
 router.register(r'orders', OrderViewSet, basename='orders') 
+router.register(r'DeliveryOrder', DeliveryOrderSet, basename='deliveryorder')
+
 
 urlpatterns = [
     path('admin/', admin.site.urls),
@@ -23,8 +25,12 @@ urlpatterns = [
     path('api/users/', include('base.urls.user_urls')),
     path('api/products/', include('base.urls.product_urls')),
     # path('api/orders/', include(router.urls)),  # Use router for viewset
-    path('api/products/', include('base.urls.product_urls')),
+    # path('api/products/', include('base.urls.product_urls')),
     path('api/advertising/', include('base.urls.advertising_urls')),
+    # path('api/DeliveryOrder/', include('base.urls.DeliveryOrder_urls')),
+    
+    # ADD this line:
+    # path('api/DeliveryOrder/', createDeliveryOrder, name='create-delivery-order'),
 
 
 

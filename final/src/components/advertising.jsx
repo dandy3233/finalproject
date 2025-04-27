@@ -1,7 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
+import { useNavigate } from 'react-router-dom';
+import { useDispatch } from 'react-redux';
+import { addToCart } from '../actions/cartActions';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faShoppingCart } from '@fortawesome/free-solid-svg-icons';
 
-const API_BASE_URL = 'http://127.0.0.1:8000';
+
+const API_BASE_URL = 'http://localhost:8000';
 
 const Header = () => (
   <div className="text-center mb-6 sm:mb-8">
@@ -45,7 +51,11 @@ const Countdown = ({ endTime }) => {
 };
 
 const ProductCard = ({ product, section }) => {
+  const dispatch = useDispatch(); // Add this
+  const navigate = useNavigate();
+
   const {
+    id,
     image,
     name,
     original_price,
@@ -53,42 +63,78 @@ const ProductCard = ({ product, section }) => {
     discount_percentage,
     save_amount,
     secondary_price,
+    countInStock = 10 // Default value
   } = product;
 
   const imageUrl = image?.startsWith('http') ? image : `${API_BASE_URL}${image}`;
+  // const navigate = useNavigate();
+  // Default quantity is set to 1 but not used
+
+  const handleAddToCart = () => {
+    dispatch(addToCart(
+      id,
+      1, // qty
+      {
+        name,
+        image: imageUrl,
+        price: discounted_price,
+        // countInStock,
+        // Add other necessary fields from advertising endpoint
+        original_price,
+        discount_percentage,
+        countInStock
+      }
+    ));
+    navigate('/cart');
+  };
 
   return (
     <div className="p-4 bg-white rounded-2xl border border-gray-100 shadow-md hover:shadow-lg transition-all duration-300 transform hover:-translate-y-1 hover:border-green-500 w-full">
-  <img
-    src={imageUrl || 'https://via.placeholder.com/150'}
-    alt={name}
-    className="w-full h-44 sm:h-52 object-contain rounded-xl bg-gray-50 mb-4 transition-transform duration-300 hover:scale-105"
-  />
-  <h3 className="text-gray-800 text-sm sm:text-base font-semibold mb-2 line-clamp-2">{name}</h3>
-  <div className="flex items-start justify-between">
-  <div className="flex flex-col gap-1">
-  <div className="flex items-center gap-2 flex-wrap">
-  <span className="line-through text-gray-400 text-xs sm:text-sm">{original_price}</span>
-  <span className="text-green-600 font-extrabold text-lg sm:text-xl">{discounted_price}</span>
-  </div>
-  {section === 'bigSave' && (
-    <div className="flex items-center gap-2 flex-wrap text-xs sm:text-sm">
-      <span className="text-green-500 font-medium">You save {save_amount}</span>
-      <span className="line-through text-gray-400">{secondary_price}</span>
+      <img
+        src={imageUrl || 'https://via.placeholder.com/150'}
+        alt={name}
+        className="w-full h-44 sm:h-52 object-contain rounded-xl bg-gray-50 mb-4 transition-transform duration-300 hover:scale-105"
+      />
+
+      <h3 className="text-gray-800 text-sm sm:text-base font-semibold mb-2 line-clamp-2">{name}</h3>
+
+      <div className="flex items-start justify-between">
+        {/* Pricing Info */}
+        <div className="flex flex-col gap-1">
+          <div className="flex items-center gap-2 flex-wrap">
+            <span className="line-through text-gray-400 text-xs sm:text-sm">{original_price}</span>
+            <span className="text-green-600 font-extrabold text-lg sm:text-xl">{discounted_price}</span>
+          </div>
+
+          {section === 'bigSave' && (
+            <div className="flex items-center gap-2 flex-wrap text-xs sm:text-sm">
+              <span className="text-green-500 font-medium">You save {save_amount}</span>
+              <span className="line-through text-gray-400">{secondary_price}</span>
+            </div>
+          )}
+        </div>
+
+        {/* Discount Tag or Cart */}
+        <div className="flex items-center gap-2">
+          {section === 'superDeals' && (
+            <span className="bg-green-500 text-white rounded-full w-8 h-8 flex items-center justify-center text-xs font-bold shadow-md animate-bounce">
+              -{discount_percentage}%
+            </span>
+          )}
+
+          {/* 🛒 Cart Button */}
+          <button
+        className="bg-green-500 text-white p-2 rounded-full hover:bg-green-700 transition"
+        onClick={handleAddToCart}
+      >
+        <FontAwesomeIcon icon={faShoppingCart} />
+      </button>
+        </div>
+      </div>
     </div>
-  )}
-</div>
-
-    {section === 'superDeals' && (
-      <span className="bg-green-500 text-white rounded-full w-8 h-8 flex items-center justify-center text-xs font-bold shadow-md animate-bounce">
-        -{discount_percentage}%
-      </span>
-    )}
-  </div>
-</div>
-
   );
 };
+
 
 const ProductCarousel = ({ products, section }) => (
   <div className="overflow-x-auto snap-x snap-mandatory scrollbar-hide px-4">
@@ -160,7 +206,7 @@ const BigSaveSection = ({ products }) => {
       setCurrentLogoIndex((prev) => (prev + 1) % brandLogos.length);
     }, 1000);
     return () => clearInterval(interval);
-  }, []);
+  }, [brandLogos.length]);
 
   const additionalContent = (
     <div className="flex items-center gap-2 flex-wrap">
@@ -184,6 +230,7 @@ const BigSaveSection = ({ products }) => {
   );
 };
 
+// Updated Advertising component
 const Advertising = () => {
   const [superDealsProducts, setSuperDealsProducts] = useState([]);
   const [bigSaveProducts, setBigSaveProducts] = useState([]);
@@ -191,19 +238,28 @@ const Advertising = () => {
   const [error, setError] = useState(null);
 
   useEffect(() => {
-    axios
-      .get(`${API_BASE_URL}/api/advertising/`)
-      .then((response) => {
-        const products = response.data;
-        setSuperDealsProducts(products.filter((p) => p.section === 'superDeals'));
-        setBigSaveProducts(products.filter((p) => p.section === 'bigSave'));
+    const fetchAdvertisingProducts = async () => {
+      try {
+        const response = await axios.get(`${API_BASE_URL}/api/advertising/`);
+        const products = response.data.map(product => ({
+          ...product,
+          // Transform API response to match needed structure
+          price: product.discounted_price,
+          originalPrice: product.original_price,
+          countInStock: product.stock || 10 // Map stock field if exists
+        }));
+
+        setSuperDealsProducts(products.filter(p => p.section === 'superDeals'));
+        setBigSaveProducts(products.filter(p => p.section === 'bigSave'));
         setLoading(false);
-      })
-      .catch((error) => {
+      } catch (error) {
         console.error('Error fetching products:', error);
         setError('Failed to load products. Please try again later.');
         setLoading(false);
-      });
+      }
+    };
+
+    fetchAdvertisingProducts();
   }, []);
 
   if (loading) return <div className="p-6 flex justify-center items-center text-sm">Loading...</div>;

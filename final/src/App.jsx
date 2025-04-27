@@ -19,13 +19,15 @@ import SearchScreen from "./screens/SearchScreen";
 import PaymentSuccessScreen from './screens/PaymentSuccessScreen';
 import Contact from './components/Contact'
 import Advertising from './components/advertising';
+import AdminDeliveryManager from './screens/AdminDeliveryManager'; // Import the new component
+import About from './components/About';
 
 
 function App() {
   return (
     <Router>
       <Header />
-      <Advertising />
+      {/* <Advertising /> */}
       <main className="py-3">
         <div className="max-w-screen-xl mx-auto px-4">
           <Routes>
@@ -35,21 +37,25 @@ function App() {
             <Route path="/cart/:id?" element={<CartScreen />} />
             <Route path="/login" element={<UserLoginScreen />} />
             <Route path="/register" element={<RegisterScreen />} />
-            <Route path="/shipping" element={<ShippingAddressScreen />} />
+            <Route path="/shipping" element={<AdminDeliveryManager />} />
             <Route path="/payment" element={<PaymentMethodScreen />} />
             <Route path="/PlaceOrder" element={<PlaceOrderScreen />} />
             <Route path="/admin/orderlist" element={<OrderListScreen />} />
             <Route path="/admin/productlist" element={<ProductListScreen />} />
             <Route path="/admin/userlist" element={<UserListScreen />} />
+            <Route path="/admin/DeliveryManager" element={<AdminDeliveryManager />} />
             <Route path="/category/:category" element={<CategoryScreen />} />
             <Route path="/wishlist" element={<WishlistScreen />} /> {/* Add the Wishlist route */}
             <Route path="/search" element={<SearchScreen />} />
             <Route path="/CategoryScreen" element={<CategoryScreen />} />
             <Route path="/success" element={<PaymentSuccessScreen />} />
             <Route path="/Contact" element={<Contact />} />
+            <Route path="/About" element={<About />} />
           </Routes>
+
         </div>
         <WishlistScreen />
+        {/* <AdminDeliveryManager /> */}
       </main>
       {/* <WishlistScreen /> */}
       <CategoryScreen />
