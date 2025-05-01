@@ -53,11 +53,6 @@ function Header() {
 <div className="relative group">
   <div className="text-4xl font-extrabold tracking-wider font-african hover:scale-105 transition-transform duration-200 flex items-center space-x-2 cursor-pointer">
     <span className="animate-pulse">🌟</span>
-    {/* <img
-              className="absolute z-20 lg:top-[23rem] sm:top-[20.5rem] top-[10.5rem] left-[2rem] lg:w-[8rem] lg:h-[8rem] sm:w-[6rem] sm:h-[6rem] w-[3rem] h-[3rem] rounded-full"
-              src="/images/about/4.png"  // Updated path
-              alt="Side Image 3"
-            /> */}
     {/* <span className="hover:text-green-500 transition">All Categories</span> */}
   </div>
 
