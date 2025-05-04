@@ -55,6 +55,9 @@ class ProductSerializer(serializers.ModelSerializer):
 class OrderSerializer(serializers.ModelSerializer):
     user = serializers.SerializerMethodField()
     orderNumber = serializers.CharField(read_only=True)
+    firstName = serializers.CharField(source='first_name')
+    lastName = serializers.CharField(source='last_name')
+    # street_address = serializers.CharField(source='streetAddress')
 
     class Meta:
         model = Order
