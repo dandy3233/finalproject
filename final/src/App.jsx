@@ -37,7 +37,7 @@ function App() {
             <Route path="/cart/:id?" element={<CartScreen />} />
             <Route path="/login" element={<UserLoginScreen />} />
             <Route path="/register" element={<RegisterScreen />} />
-            <Route path="/shipping" element={<AdminDeliveryManager />} />
+            <Route path="/shipping" element={<ShippingAddressScreen />} />
             <Route path="/payment" element={<PaymentMethodScreen />} />
             <Route path="/PlaceOrder" element={<PlaceOrderScreen />} />
             <Route path="/admin/orderlist" element={<OrderListScreen />} />

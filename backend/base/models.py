@@ -57,6 +57,21 @@ class Order(models.Model):
     createdAt = models.DateTimeField(auto_now_add=True)
     orderNumber = models.CharField(max_length=20, null=True, blank=True, unique=True)
     _id = models.AutoField(primary_key=True, editable=False)
+    instructions = models.TextField(blank=True, null=True)
+    
+    # Contact info
+    first_name = models.CharField(max_length=100, default='John')
+    last_name = models.CharField(max_length=100, default='Demo')
+    phone = models.CharField(max_length=20, default='0000000000')
+    email = models.EmailField(default='test@example.com')
+
+
+    # Address fields
+    street_address = models.CharField(max_length=255, default='Unknown')
+    city = models.CharField(max_length=100, default='Ethiopia')
+    state = models.CharField(max_length=100, default='Addis Ababa')
+    country = models.CharField(max_length=100, default='Ethiopia')
+
 
     def __str__(self):
         return self.orderNumber or f"Order {self._id}"
