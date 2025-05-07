@@ -58,6 +58,8 @@ class Order(models.Model):
     orderNumber = models.CharField(max_length=20, null=True, blank=True, unique=True)
     _id = models.AutoField(primary_key=True, editable=False)
     instructions = models.TextField(blank=True, null=True)
+    deliveredBy = models.CharField(max_length=255, null=True, blank=True)  # ✅ Add this line
+
     
     # Contact info
     first_name = models.CharField(max_length=100, default='John')
