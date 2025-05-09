@@ -1,6 +1,12 @@
 import React, { useState, useEffect } from "react";
 import CountUp from "react-countup";
 import { motion } from "framer-motion";
+import {
+  ShoppingCart,
+  DollarSign,
+  CheckCircle,
+  Truck,
+} from "lucide-react";
 
 const OrderList = () => {
   const [orders, setOrders] = useState([]);
@@ -10,14 +16,9 @@ const OrderList = () => {
   useEffect(() => {
     const fetchOrders = async () => {
       try {
-        const response = await fetch("http://localhost:8000/api/orders/", {
-          headers: { "Content-Type": "application/json" },
-        });
-
+        const response = await fetch("http://localhost:8000/api/orders/");
         if (!response.ok) throw new Error("Failed to fetch orders");
-
         const data = await response.json();
-        console.log("Orders Data:", data);
         setOrders(data);
       } catch (err) {
         setError(err.message);
@@ -29,7 +30,6 @@ const OrderList = () => {
     fetchOrders();
   }, []);
 
-  // 🟢 Order Analysis Logic
   const totalOrders = orders.length;
   const totalRevenue = orders.reduce((sum, order) => sum + (Number(order.totalPrice) || 0), 0);
   const paidOrders = orders.filter(order => order.isPaid).length;
@@ -38,27 +38,46 @@ const OrderList = () => {
   if (loading) return <div className="text-center text-lg">Loading...</div>;
   if (error) return <div className="text-red-500 font-bold">Error: {error}</div>;
 
-  return (
-    <div className="container mx-auto p-4">
-      <h1 className="text-3xl font-bold mb-4 text-center">Order List</h1>
+  const summaryCards = [
+    {
+      title: "Total Orders",
+      value: totalOrders,
+      icon: <ShoppingCart className="text-green-600" size={32} />,
+    },
+    {
+      title: "Total Revenue",
+      value: totalRevenue,
+      icon: <DollarSign className="text-green-600" size={32} />,
+      prefix: "$",
+    },
+    {
+      title: "Paid Orders",
+      value: paidOrders,
+      icon: <CheckCircle className="text-green-600" size={32} />,
+    },
+    {
+      title: "Delivered Orders",
+      value: deliveredOrders,
+      icon: <Truck className="text-green-600" size={32} />,
+    },
+  ];
 
-      {/* 🟢 Animated Order Summary Section */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
-        {[
-          { title: "Total Orders", value: totalOrders, color: "bg-blue-100" },
-          { title: "Total Revenue", value: totalRevenue, color: "bg-green-100", prefix: "$" },
-          { title: "Paid Orders", value: paidOrders, color: "bg-yellow-100" },
-          { title: "Delivered Orders", value: deliveredOrders, color: "bg-purple-100" },
-        ].map(({ title, value, color, prefix = "" }, index) => (
+  return (
+    <div className="container mx-auto p-6">
+      <h1 className="text-3xl font-bold mb-6 text-center text-green-600">Order Dashboard</h1>
+
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
+        {summaryCards.map(({ title, value, icon, prefix = "" }, index) => (
           <motion.div
             key={title}
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5, delay: index * 0.2 }}
-            className={`${color} p-4 rounded-lg text-center shadow-md`}
+            className="bg-white border border-green-200 rounded-2xl p-5 text-center shadow-md"
           >
-            <h2 className="text-xl font-bold">{title}</h2>
-            <p className="text-3xl font-bold">
+            <div className="flex items-center justify-center mb-2">{icon}</div>
+            <h2 className="text-md font-semibold text-gray-700">{title}</h2>
+            <p className="text-2xl font-bold text-green-600">
               <CountUp start={0} end={value} duration={2} separator="," prefix={prefix} />
             </p>
           </motion.div>
@@ -68,39 +87,37 @@ const OrderList = () => {
       {orders.length === 0 ? (
         <p className="text-center text-gray-500">No orders found.</p>
       ) : (
-        <div className="overflow-x-auto">
-          <table className="w-full border-collapse border border-gray-300 text-sm">
-            <thead>
-              <tr className="bg-gray-200">
-                {["Order Number", "User", "Payment Method", "Tax", "Shipping", "Total", "Paid", "Paid At", "Processed Delivery","Delivered", "Delivered At", "Created At"].map((header) => (
-                  <th key={header} className="p-2 border text-left">{header}</th>
+        <div className="overflow-x-auto bg-white rounded-xl shadow-lg">
+          <table className="w-full table-auto text-sm text-left border border-gray-200">
+            <thead className="bg-green-50 text-green-800 font-semibold">
+              <tr>
+                {["Order #", "User", "Payment", "Tax", "Shipping", "Total", "Paid", "Paid At", "Delivered", "Delivered At", "Created At"].map(header => (
+                  <th key={header} className="p-3 border-b border-green-200">{header}</th>
                 ))}
               </tr>
             </thead>
             <tbody>
               {orders.map((order) => (
-                <tr key={order._id} className="border hover:bg-gray-100">
-                  <td className="p-2 border">{order.orderNumber}</td>
-                  <td className="p-2 border">
-                    {order.user ? order.user.username || "No Username" : "Unknown"}
-                  </td>
-                  <td className="p-2 border">{order.paymentMethod || "N/A"}</td>
-                  <td className="p-2 border">${(Number(order.taxPrice) || 0).toFixed(2)}</td>
-                  <td className="p-2 border">${(Number(order.shippingPrice) || 0).toFixed(2)}</td>
-                  <td className="p-2 border font-bold">${(Number(order.totalPrice) || 0).toFixed(2)}</td>
-                  <td className="p-2 border">
-                    <span className={order.isPaid ? "text-green-500 font-bold" : "text-red-500 font-bold"}>
+                <tr key={order._id} className="hover:bg-green-50 transition">
+                  <td className="p-2 border-b">{order.orderNumber}</td>
+                  <td className="p-2 border-b">{order.user?.username || "Unknown"}</td>
+                  <td className="p-2 border-b">{order.paymentMethod || "N/A"}</td>
+                  <td className="p-2 border-b">${(Number(order.taxPrice) || 0).toFixed(2)}</td>
+                  <td className="p-2 border-b">${(Number(order.shippingPrice) || 0).toFixed(2)}</td>
+                  <td className="p-2 border-b font-bold">${(Number(order.totalPrice) || 0).toFixed(2)}</td>
+                  <td className="p-2 border-b">
+                    <span className={order.isPaid ? "text-green-600 font-bold" : "text-red-500 font-bold"}>
                       {order.isPaid ? "Yes" : "No"}
                     </span>
                   </td>
-                  <td className="p-2 border">{order.paidAt ? new Date(order.paidAt).toLocaleDateString() : "N/A"}</td>
-                  <td className="p-2 border">
-                    <span className={order.isDelivered ? "text-green-500 font-bold" : "text-red-500 font-bold"}>
+                  <td className="p-2 border-b">{order.paidAt ? new Date(order.paidAt).toLocaleDateString() : "N/A"}</td>
+                  <td className="p-2 border-b">
+                    <span className={order.isDelivered ? "text-green-600 font-bold" : "text-red-500 font-bold"}>
                       {order.isDelivered ? "Yes" : "No"}
                     </span>
                   </td>
-                  <td className="p-2 border">{order.deliveredAt ? new Date(order.deliveredAt).toLocaleDateString() : "N/A"}</td>
-                  <td className="p-2 border">{new Date(order.createdAt).toLocaleDateString()}</td>
+                  <td className="p-2 border-b">{order.deliveredAt ? new Date(order.deliveredAt).toLocaleDateString() : "N/A"}</td>
+                  <td className="p-2 border-b">{new Date(order.createdAt).toLocaleDateString()}</td>
                 </tr>
               ))}
             </tbody>
