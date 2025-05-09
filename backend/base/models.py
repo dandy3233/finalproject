@@ -45,7 +45,8 @@ class Review(models.Model):
 
 
 class Order(models.Model):
-    user = models.ForeignKey(User, on_delete=models.SET_NULL, null=True)
+    user = models.ForeignKey(User, related_name='orders', on_delete=models.CASCADE, null=True, blank=True)
+    delivereBy = models.ForeignKey(User, related_name='delivered_orders', on_delete=models.SET_NULL,null=True,blank=True)
     paymentMethod = models.CharField(max_length=200, null=True, blank=True)
     taxPrice = models.DecimalField(max_digits=7, decimal_places=2)
     shippingPrice = models.DecimalField(max_digits=7, decimal_places=2)
@@ -58,7 +59,7 @@ class Order(models.Model):
     orderNumber = models.CharField(max_length=20, null=True, blank=True, unique=True)
     _id = models.AutoField(primary_key=True, editable=False)
     instructions = models.TextField(blank=True, null=True)
-    deliveredBy = models.CharField(max_length=255, null=True, blank=True)  # ✅ Add this line
+    # deliveredBy = models.CharField(max_length=255, null=True, blank=True)  # ✅ Add this line
 
     
     # Contact info

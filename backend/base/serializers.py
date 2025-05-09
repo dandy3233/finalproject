@@ -57,7 +57,7 @@ class OrderSerializer(serializers.ModelSerializer):
     orderNumber = serializers.CharField(read_only=True)
     firstName = serializers.CharField(source='first_name')
     lastName = serializers.CharField(source='last_name')
-    # street_address = serializers.CharField(source='streetAddress')
+    delivereBy = serializers.CharField(source='delivereBy.username', read_only=True)
 
     class Meta:
         model = Order
@@ -65,6 +65,9 @@ class OrderSerializer(serializers.ModelSerializer):
 
     def get_user(self, obj):
         return obj.user.username if obj.user else None
+    
+    def get_delivereBy(self, obj):
+        return obj.delivereBy.username if obj.delivereBy else None
 
 
 class AdvertisingSerializer(serializers.ModelSerializer):
@@ -81,3 +84,8 @@ class AdvertisingSerializer(serializers.ModelSerializer):
         
 #     def get_user(self, obj):
 #         return obj.user.username if obj.user else None
+
+class UserSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = User
+        fields = ['id', 'username']
