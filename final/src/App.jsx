@@ -12,7 +12,7 @@ import OrderListScreen from './screens/Orderlist';
 import ProductListScreen from './screens/productlist';
 import UserListScreen from './screens/UserList';
 import PlaceOrderScreen from './screens/PlaceOrder';
-import CategoryScreen from './screens/CategoryScreen'; // Import the new CategoryScreen
+import CategoryScreen from './screens/CategoryScreen'; 
 import WishlistScreen from './screens/WishlistScreen';  // Import WishlistScreen
 import SearchScreen from "./screens/SearchScreen";
 // import AllProductsScreen from './screens/AllProductsScreen'; 
