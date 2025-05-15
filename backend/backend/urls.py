@@ -14,6 +14,11 @@ from base.views.deliveryorder_views import assign_delivery
 from base.views.deliveryuser import get_orders, get_users
 from base.views.product_views import searchProducts
 
+# from base.views.payment_views import start_payment
+
+
+
+
 # Router setup
 router = DefaultRouter()
 router.register(r'orders', OrderViewSet, basename='orders')
@@ -33,6 +38,13 @@ urlpatterns = [
     path('api/assign_delivery/', assign_delivery),
     # path('api/orders/', get_orders),  # Avoid conflict with /api/orders/
     path('api/delivery_user/', get_users),    # Avoid conflict with /api/users/
+    
+    
+    
+    # ✅ Include payment route under /api/
+    path('api/', include('base.urls.payment_urls')),
+
+
 ]
 
 

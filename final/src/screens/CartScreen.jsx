@@ -1,7 +1,8 @@
 import React, { useEffect } from "react";
-import { Link, useNavigate, useLocation, useParams } from "react-router-dom";
+import { Link,  useLocation, useParams } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { addToCart, removeFromCart } from "../actions/cartActions";
+import axios from "axios";
 import Loader from "../components/Loader";
 import Message from "../components/Message";
 import MultiStepProgressBar from "../components/MultiStepProgressBar";
@@ -11,7 +12,7 @@ function CartScreen() {
   const location = useLocation();
   const qty = location.search ? Number(location.search.split("=")[1]) : 1;
   const dispatch = useDispatch();
-  const navigate = useNavigate();
+  // const navigate = useNavigate();
 
   useEffect(() => {
     if (productId) {
@@ -28,23 +29,6 @@ function CartScreen() {
     dispatch(removeFromCart(id));
   };
 
-  const checkoutHandler = () => {
-    if (!userInfo) {
-      navigate("/login?redirect=/shipping");
-    } else {
-      navigate("/shipping", {
-        state: {
-          cartItems,
-          subtotal,
-          tax,
-          shippingFee,
-          total
-        }
-      });
-    }
-  };
-
-  // ✅ Order Summary Calculations
   const TAX_RATE = 0.1;
   const FREE_SHIPPING_THRESHOLD = 100;
   const SHIPPING_COST = 10;
@@ -56,6 +40,25 @@ function CartScreen() {
   const shippingFee = subtotal > FREE_SHIPPING_THRESHOLD ? 0 : SHIPPING_COST;
   const tax = subtotal * TAX_RATE;
   const total = subtotal + tax + shippingFee;
+
+  const handlePayment = async () => {
+    try {
+      const { data } = await axios.post(
+  'http://localhost:8000/api/payment/',
+  { amount: total.toFixed(2) },
+  {
+    headers: {
+      Authorization: `Bearer ${userInfo.token}`, // ✅ This is correct
+    },
+  }
+);
+
+      window.location.href = data.data.checkout_url;
+    } catch (err) {
+      alert("Payment request failed.");
+      console.error(err.response?.data || err.message);
+    }
+  };
 
   return (
     <div className="max-w-6xl mx-auto p-6">
@@ -136,7 +139,6 @@ function CartScreen() {
             )}
           </div>
 
-          {/* ✅ Order Summary */}
           <div className="p-6 border rounded-lg shadow-md bg-gray-50">
             <h1 className="text-2xl font-bold text-center mb-6">Order Summary</h1>
             <div className="space-y-5">
@@ -161,13 +163,14 @@ function CartScreen() {
             </div>
 
             <button
-              type="button"
-              className="w-full py-3 mt-6 bg-green-500 text-white rounded-lg hover:bg-green-600 transition"
-              disabled={cartItems.length === 0}
-              onClick={checkoutHandler}
-            >
-              Proceed to Checkout
-            </button>
+  type="button"
+  className="w-full py-3 mt-6 bg-green-500 text-white rounded-lg hover:bg-green-600 transition"
+  disabled={cartItems.length === 0}
+  onClick={handlePayment}
+>
+  Pay with Chapa
+</button>
+
           </div>
         </div>
       )}
