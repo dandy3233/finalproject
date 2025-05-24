@@ -8,10 +8,11 @@ class UserSerializer(serializers.ModelSerializer):
     name = serializers.SerializerMethodField(read_only=True)
     _id = serializers.SerializerMethodField(read_only=True)
     isAdmin = serializers.SerializerMethodField(read_only=True)
+    isDelivery  = serializers.SerializerMethodField(read_only=True)
 
     class Meta:
         model = User
-        fields = ['id', '_id', 'username', 'email', 'first_name', 'isAdmin']
+        fields = ['id', '_id', 'username', 'email', 'first_name', 'isAdmin', 'isDelivery']
 
     def get__id(self, obj):
         return obj.id
@@ -24,6 +25,9 @@ class UserSerializer(serializers.ModelSerializer):
         if name == '':
             name = obj.email
         return name
+    
+    def get_isDelivery(self, obj):
+        return hasattr(obj, "userprofile") and obj.userprofile.is_delivery
 
 
 class UserSerializerWithToken(UserSerializer):
@@ -36,6 +40,7 @@ class UserSerializerWithToken(UserSerializer):
     def get_token(self, obj):
         token = RefreshToken.for_user(obj).access_token
         return str(token)
+
 
 
 class ProductSerializer(serializers.ModelSerializer):

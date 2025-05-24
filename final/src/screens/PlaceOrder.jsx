@@ -6,6 +6,7 @@ import MultiStepProgressBar from '../components/MultiStepProgressBar';
 import { motion } from 'framer-motion';
 import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';
+import QRCode from 'qrcode';
 
 const PlaceOrder = () => {
   const navigate = useNavigate();
@@ -35,6 +36,7 @@ const PlaceOrder = () => {
   const [error, setError] = useState('');
   const [successMessage, setSuccessMessage] = useState('');
 
+  // Ensure safe numbers for prices
   const safeCartItems = (cartItems || []).map((item) => ({
     ...item,
     price: Number(item.price),
@@ -76,9 +78,12 @@ const PlaceOrder = () => {
         totalPrice: parseFloat(formData.totalPrice),
       };
 
+      const confirmation_number = Math.floor(100000 + Math.random() * 900000).toString();
       const orderData = {
         ...formData,
         ...numericData,
+        isPaid: true,
+        isDelivered: true,
         paymentMethod,
         orderItems: safeCartItems.map((item) => ({
           name: item.name,
@@ -87,6 +92,7 @@ const PlaceOrder = () => {
           product: item.product || item._id,
         })),
         orderNumber,
+        confirmation_number,
       };
 
       const response = await axios.post(
@@ -101,7 +107,7 @@ const PlaceOrder = () => {
       );
 
       if (response.status === 201 || response.status === 200) {
-        generatePDF({ ...response.data, ...numericData, paymentMethod });
+        generatePDF({ ...response.data, ...numericData, paymentMethod, confirmation_number });
         setSuccessMessage(`Order placed successfully! Order #${orderNumber}`);
         setTimeout(() => navigate(`/orders/${response.data._id}`), 2000);
       }
@@ -112,46 +118,100 @@ const PlaceOrder = () => {
     }
   };
 
-  const generatePDF = (order) => {
+  // Format currency for display
+  const formatCurrency = (value) =>
+    typeof value === 'number' ? `$${value.toFixed(2)}` : `$${Number(value || 0).toFixed(2)}`;
+
+  // PDF generation with styled heading and table
+  // PDF generation with enhanced styling and custom font
+const generatePDF = async (order) => {
+  try {
     const doc = new jsPDF();
 
+    // Title with shadowed style
     const drawStyledText = (text, x, y) => {
-      doc.setFont("helvetica", "bold");
+      doc.setFont("times", "bold"); // Replaced helvetica
       doc.setFontSize(28);
-      doc.setTextColor(220, 38, 38);
-      doc.text(text, x + 2, y + 2);
-      doc.setTextColor(245, 158, 11);
-      doc.text(text, x + 1, y + 1);
-      doc.setTextColor(21, 128, 61);
+      doc.setTextColor(50, 50, 50);
+      doc.text(text, x + 1.5, y + 1.5);
+      doc.setTextColor(34, 197, 94); // emerald-500
       doc.text(text, x, y);
     };
 
-    drawStyledText("African Star 🌟", 20, 20);
+    drawStyledText("Star 🌟", 55, 25);
+
+    // Header subtitle
+    doc.setFont("times", "bold");
     doc.setFontSize(14);
-    doc.setTextColor(0, 0, 0);
-    doc.text("Order Summary", 20, 35);
-    doc.line(20, 40, 190, 40);
+    doc.setTextColor(64, 64, 64);
+    doc.text("Order Summary Report", 15, 40);
 
-    const formatCurrency = (value) =>
-      typeof value === 'number' ? `$${value.toFixed(2)}` : `$${Number(value || 0).toFixed(2)}`;
+    // Decorative line
+    doc.setDrawColor(34, 197, 94);
+    doc.setLineWidth(1);
+    doc.line(15, 43, 195, 43);
 
+    // Order summary table
     autoTable(doc, {
-      startY: 45,
-      head: [["Field", "Value"]],
+      startY: 50,
+      theme: "grid",
+      head: [["Detail", "Value"]],
       body: [
         ["Order Number", order.orderNumber || 'N/A'],
+        ["Confirmation Code", order.confirmation_number || 'N/A'],
         ["Payment Method", order.paymentMethod || 'N/A'],
-        ["Tax Price", formatCurrency(order.taxPrice)],
-        ["Shipping Price", formatCurrency(order.shippingPrice)],
-        ["Total Price", formatCurrency(order.totalPrice)],
+        ["Tax", formatCurrency(order.taxPrice)],
+        ["Shipping", formatCurrency(order.shippingPrice)],
+        ["Total", formatCurrency(order.totalPrice)],
         ["Paid", order.isPaid ? "Yes" : "No"],
         ["Delivered", order.isDelivered ? "Yes" : "No"],
       ],
-      theme: "grid",
+      headStyles: {
+        fillColor: [21, 128, 61],
+        textColor: 255,
+        fontStyle: "bold",
+        font: "times"
+      },
+      bodyStyles: {
+        font: "times",
+        textColor: [40, 40, 40]
+      },
+      alternateRowStyles: { fillColor: [245, 245, 245] },
+      margin: { top: 10, left: 15, right: 15 },
     });
 
-    doc.save(`Order_${order.orderNumber || 'N/A'}.pdf`);
-  };
+    // QR Code for order tracking
+    const qrCodeData = order.confirmation_number || order.orderNumber || 'NoCode';
+    const qrURL = `https://yourwebsite.com/order/confirm/${qrCodeData}`;
+    let qrDataUrl = '';
+
+    try {
+      qrDataUrl = await QRCode.toDataURL(qrURL);
+    } catch (err) {
+      console.error("QR Code generation failed:", err);
+    }
+
+    if (qrDataUrl) {
+      const qrSize = 50;
+      const pageHeight = doc.internal.pageSize.height;
+      doc.addImage(qrDataUrl, 'PNG', 150, pageHeight - qrSize - 20, qrSize, qrSize);
+      doc.setFontSize(10);
+      doc.text("Scan to Confirm Order", 150, pageHeight - qrSize - 25);
+    }
+
+    // Footer
+    doc.setFont("times", "italic");
+    doc.setFontSize(10);
+    doc.setTextColor(150);
+    doc.text("Thank you for shopping with African Star!", 15, doc.internal.pageSize.height - 10);
+
+    // Save PDF
+    doc.save(`Order_${order.orderNumber || 'N_A'}.pdf`);
+  } catch (error) {
+    console.error("Error generating PDF:", error);
+  }
+};
+
 
   return (
     <>
@@ -159,73 +219,87 @@ const PlaceOrder = () => {
       <motion.div
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
-        className="max-w-3xl mx-auto bg-white shadow-lg rounded-lg overflow-hidden"
+        className="max-w-3xl mx-auto bg-white shadow-lg rounded-lg overflow-hidden my-10"
       >
-        <div className="bg-green-500 text-white p-6 rounded-t-lg">
-          <h1 className="text-2xl font-bold flex items-center gap-3">
+        <div className="bg-green-600 text-white p-6 rounded-t-lg">
+          <h1 className="text-3xl font-extrabold flex items-center gap-3 tracking-wide">
             Delivery Information
           </h1>
-          <h1 className="text-2xl font-bold flex items-center gap-3 mt-2">
+          <h1 className="text-2xl font-semibold flex items-center gap-3 mt-2">
             Order #{orderNumber || 'Generating...'}
           </h1>
-          <p className="mt-2 opacity-90">
+          <p className="mt-2 opacity-90 text-green-100">
             Please fill in the details below to complete your order
           </p>
         </div>
 
-        <div className="p-6 space-y-8">
-          <section className="bg-gray-50 p-4 rounded-lg">
-            <h2 className="text-lg font-semibold mb-4">Order Summary</h2>
-            <div className="space-y-4">
+        <div className="p-8 space-y-10">
+          {/* Order Summary Section */}
+          <section className="bg-green-50 p-6 rounded-lg border border-green-200 shadow-sm">
+            <h2 className="text-xl font-semibold mb-5 text-green-800 border-b border-green-300 pb-2">
+              Order Summary
+            </h2>
+            <div className="space-y-6">
               {safeCartItems.map((item, index) => (
-                <div key={index} className="flex justify-between items-center">
+                <div
+                  key={index}
+                  className="flex justify-between items-center bg-white p-4 rounded-md shadow-sm hover:shadow-md transition"
+                >
                   <div>
-                    <h3 className="font-medium">{item.name}</h3>
-                    <p className="text-sm text-gray-600">
+                    <h3 className="font-semibold text-green-900">{item.name}</h3>
+                    <p className="text-sm text-green-700">
                       {item.qty} x ${Number(item.price).toFixed(2)}
                     </p>
                   </div>
-                  <span className="font-medium">
+                  <span className="font-semibold text-green-900">
                     ${(item.qty * Number(item.price)).toFixed(2)}
                   </span>
                 </div>
               ))}
-              <div className="pt-4 border-t space-y-3">
-                <div className="flex justify-between">
+              <div className="pt-6 border-t space-y-4 text-green-900 font-semibold">
+                <div className="flex justify-between text-base">
                   <span>Subtotal</span>
                   <span>${safeSubtotal.toFixed(2)}</span>
                 </div>
-                <div className="flex justify-between">
+                <div className="flex justify-between text-base">
                   <span>Tax</span>
                   <span>${safeTax.toFixed(2)}</span>
                 </div>
-                <div className="flex justify-between">
+                <div className="flex justify-between text-base">
                   <span>Shipping</span>
                   <span>{safeShippingFee === 0 ? "Free" : `$${safeShippingFee.toFixed(2)}`}</span>
                 </div>
-                <div className="flex justify-between font-bold text-lg pt-3">
+                <div className="flex justify-between font-bold text-xl pt-4 border-t border-green-300">
                   <span>Total</span>
-                  <span className="text-green-600">${safeTotal.toFixed(2)}</span>
+                  <span className="text-green-700">${safeTotal.toFixed(2)}</span>
                 </div>
               </div>
             </div>
           </section>
 
-          <form onSubmit={submitOrderHandler} className="space-y-6">
+          {/* Order Form */}
+          <form onSubmit={submitOrderHandler} className="space-y-8">
+            {/* Contact Details */}
             <section>
-              <h2 className="text-lg font-semibold mb-4">Contact Details</h2>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <h2 className="text-xl font-semibold mb-6 text-green-800 border-b border-green-300 pb-2">
+                Contact Details
+              </h2>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 {["firstName", "lastName", "phone", "email"].map((field) => (
                   <div key={field}>
-                    <label className="block text-sm font-medium mb-2 capitalize">
+                    <label
+                      htmlFor={field}
+                      className="block text-sm font-medium mb-2 text-green-900 capitalize"
+                    >
                       {field.replace(/([A-Z])/g, ' $1')} *
                     </label>
                     <input
-                      type={field === "email" ? "email" : field === "firstName" ? "firstName" : field === "phone" ? "tel" : "text"}
+                      id={field}
+                      type={field === "email" ? "email" : field === "phone" ? "tel" : "text"}
                       name={field}
                       value={formData[field]}
                       onChange={handleChange}
-                      className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-green-500"
+                      className="w-full px-4 py-3 border border-green-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-green-500 transition"
                       required
                     />
                   </div>
@@ -233,75 +307,93 @@ const PlaceOrder = () => {
               </div>
             </section>
 
+            {/* Delivery Address */}
             <section>
-              <h2 className="text-lg font-semibold mb-4">Delivery Address</h2>
-              <div className="space-y-4">
+              <h2 className="text-xl font-semibold mb-6 text-green-800 border-b border-green-300 pb-2">
+                Delivery Address
+              </h2>
+              <div className="space-y-6">
                 <input
                   type="text"
-                  name="street_address"
+                  name="streetAddress"
                   placeholder="Street Address"
-                  value={formData.street_address}
+                  value={formData.streetAddress}
                   onChange={handleChange}
-                  className="w-full px-4 py-2 border rounded-lg"
+                  className="w-full px-4 py-3 border border-green-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-green-500 transition"
                   required
                 />
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                   <input
                     type="text"
                     name="city"
                     placeholder="City"
                     value={formData.city}
                     onChange={handleChange}
-                    className="px-4 py-2 border rounded-lg"
+                    className="px-4 py-3 border border-green-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-green-500 transition"
                     required
                   />
-                  <select
+                  <input
+                    type="text"
                     name="state"
+                    placeholder="State"
                     value={formData.state}
                     onChange={handleChange}
-                    className="px-4 py-2 border rounded-lg"
+                    className="px-4 py-3 border border-green-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-green-500 transition"
                     required
-                  >
-                    <option value="">Select State</option>
-                    <option value="CA">California</option>
-                  </select>
-                  <select
+                  />
+                  <input
+                    type="text"
                     name="country"
+                    placeholder="Country"
                     value={formData.country}
                     onChange={handleChange}
-                    className="px-4 py-2 border rounded-lg"
+                    className="px-4 py-3 border border-green-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-green-500 transition"
                     required
-                  >
-                    <option value="">Select Country</option>
-                    <option value="US">United States</option>
-                  </select>
+                  />
                 </div>
-                <textarea
-                  name="instructions"
-                  value={formData.instructions}
-                  onChange={handleChange}
-                  placeholder="Special delivery instructions"
-                  className="w-full px-4 py-2 border rounded-lg"
-                  rows={3}
-                />
               </div>
             </section>
 
+            {/* Additional Instructions */}
+            <section>
+              <h2 className="text-xl font-semibold mb-4 text-green-800 border-b border-green-300 pb-2">
+                Additional Instructions
+              </h2>
+              <textarea
+                name="instructions"
+                rows="4"
+                placeholder="Any special instructions?"
+                value={formData.instructions}
+                onChange={handleChange}
+                className="w-full px-4 py-3 border border-green-300 rounded-lg shadow-sm resize-y focus:outline-none focus:ring-2 focus:ring-green-500 transition"
+              />
+            </section>
+
+            {/* Error and Success Messages */}
+            {error && (
+              <p className="text-red-600 bg-red-100 px-4 py-3 rounded-md shadow-sm border border-red-300">
+                {error}
+              </p>
+            )}
+            {successMessage && (
+              <p className="text-green-700 bg-green-100 px-4 py-3 rounded-md shadow-sm border border-green-300">
+                {successMessage}
+              </p>
+            )}
+
+            {/* Submit Button */}
             <button
               type="submit"
-              className="w-full bg-blue-600 text-white py-3 px-6 rounded hover:bg-blue-700 transition"
               disabled={loading}
+              className={`w-full py-4 rounded-lg font-semibold text-white transition ${
+                loading
+                  ? 'bg-green-400 cursor-not-allowed'
+                  : 'bg-green-600 hover:bg-green-700 focus:ring-4 focus:ring-green-400'
+              }`}
             >
               {loading ? 'Placing Order...' : 'Place Order'}
             </button>
           </form>
-
-          {error && (
-            <div className="p-4 bg-red-100 text-red-700 rounded">{error}</div>
-          )}
-          {successMessage && (
-            <div className="p-4 bg-green-100 text-green-700 rounded">{successMessage}</div>
-          )}
         </div>
       </motion.div>
     </>

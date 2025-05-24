@@ -164,6 +164,14 @@ function Header() {
                           <FontAwesomeIcon icon={faUser} className="w-4 h-4 mr-3 text-green-500" />
                           Profile
                         </Link>
+                        <div className="px-3 py-1 text-xs font-medium text-gray-400 uppercase">Delivery</div>
+    <Link
+      to="/delivered"
+      className="flex items-center px-3 py-2 rounded-lg hover:bg-orange-50 text-gray-700 transition-colors"
+    >
+      <FontAwesomeIcon icon={faTruck} className="w-4 h-4 mr-3 text-orange-500" />
+      Delivery Orders
+    </Link>
                         {userInfo.isAdmin && (
                           <>
                             <div className="px-3 py-1 text-xs font-medium text-gray-400 uppercase">Admin</div>

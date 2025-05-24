@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Link, useLocation, useNavigate } from 'react-router-dom'; // Use `useLocation` and `useNavigate`
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import Loader from '../components/Loader';
 import Message from '../components/Message';
@@ -14,24 +14,22 @@ function RegisterScreen() {
     const [message, setMessage] = useState('');
 
     const dispatch = useDispatch();
-
-    const location = useLocation(); // Use `useLocation` to get the location object
-    const navigate = useNavigate(); // Use `useNavigate` for navigation
+    const location = useLocation();
+    const navigate = useNavigate();
 
     const redirect = new URLSearchParams(location.search).get('redirect') || '/';
 
-    const userRegister = useSelector(state => state.userRegister);
+    const userRegister = useSelector((state) => state.userRegister);
     const { error, loading, userInfo } = userRegister;
 
     useEffect(() => {
         if (userInfo) {
-            navigate(redirect); // Redirect using `navigate` instead of `history.push`
+            navigate(redirect);
         }
     }, [userInfo, navigate, redirect]);
 
     const submitHandler = (e) => {
         e.preventDefault();
-
         if (password !== confirmPassword) {
             setMessage('Passwords do not match');
         } else {
@@ -40,78 +38,90 @@ function RegisterScreen() {
     };
 
     return (
-        <FormContainer>
-            <h1 className="text-3xl font-bold mb-4">Sign Up</h1>
-            {message && <Message variant="danger">{message}</Message>}
-            {error && <Message variant="danger">{error}</Message>}
-            {loading && <Loader />}
-            <form onSubmit={submitHandler} className="space-y-4">
+        <div className="min-h-screen flex items-center justify-center bg-gray-0">
+            <div className="w-full max-w-md p-8 bg-white rounded-2xl shadow-2xl">
 
-                <div className="flex flex-col">
-                    <label htmlFor="name" className="text-lg font-medium mb-2">Name</label>
-                    <input
-                        required
-                        type="text"
-                        placeholder="Enter name"
-                        value={name}
-                        onChange={(e) => setName(e.target.value)}
-                        className="px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                    />
-                </div>
+                {/* 🖼️ Logo - optional, remove if not needed */}
+                <img src="/logo.png" alt="Brand Logo" className="mx-auto w-24 mb-4" />
 
-                <div className="flex flex-col">
-                    <label htmlFor="email" className="text-lg font-medium mb-2">Email Address</label>
-                    <input
-                        required
-                        type="email"
-                        placeholder="Enter Email"
-                        value={email}
-                        onChange={(e) => setEmail(e.target.value)}
-                        className="px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                    />
-                </div>
+                <h1 className="text-3xl font-semibold text-center text-gray-800 mb-6">Create Your Account</h1>
 
-                <div className="flex flex-col">
-                    <label htmlFor="password" className="text-lg font-medium mb-2">Password</label>
-                    <input
-                        required
-                        type="password"
-                        placeholder="Enter Password"
-                        value={password}
-                        onChange={(e) => setPassword(e.target.value)}
-                        className="px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                    />
-                </div>
+                {message && <Message variant="danger">{message}</Message>}
+                {error && <Message variant="danger">{error}</Message>}
+                {loading && <Loader />}
 
-                <div className="flex flex-col">
-                    <label htmlFor="passwordConfirm" className="text-lg font-medium mb-2">Confirm Password</label>
-                    <input
-                        required
-                        type="password"
-                        placeholder="Confirm Password"
-                        value={confirmPassword}
-                        onChange={(e) => setConfirmPassword(e.target.value)}
-                        className="px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                    />
-                </div>
+                <form onSubmit={submitHandler} className="space-y-5">
+                    <div>
+                        <label htmlFor="name" className="block text-gray-500 mb-1 font-medium">Name</label>
+                        <input
+                            id="name"
+                            type="text"
+                            required
+                            value={name}
+                            onChange={(e) => setName(e.target.value)}
+                            placeholder="Your name"
+                            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring focus:ring-green-400 focus:outline-none text-gray-700"
+                        />
+                    </div>
 
-                <button type="submit" className="w-full py-2 bg-blue-500 text-white font-bold rounded-md hover:bg-blue-600">
-                    Register
-                </button>
+                    <div>
+                        <label htmlFor="email" className="block text-gray-500 mb-1 font-medium">Email Address</label>
+                        <input
+                            id="email"
+                            type="email"
+                            required
+                            value={email}
+                            onChange={(e) => setEmail(e.target.value)}
+                            placeholder="you@example.com"
+                            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring focus:ring-green-400 focus:outline-none text-gray-700"
+                        />
+                    </div>
 
-            </form>
+                    <div>
+                        <label htmlFor="password" className="block text-gray-500 mb-1 font-medium">Password</label>
+                        <input
+                            id="password"
+                            type="password"
+                            required
+                            value={password}
+                            onChange={(e) => setPassword(e.target.value)}
+                            placeholder="••••••••"
+                            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring focus:ring-green-400 focus:outline-none text-gray-700"
+                        />
+                    </div>
 
-            <div className="py-3">
-                <p className="text-center">
-                    Have an Account? 
+                    <div>
+                        <label htmlFor="confirmPassword" className="block text-gray-500 mb-1 font-medium">Confirm Password</label>
+                        <input
+                            id="confirmPassword"
+                            type="password"
+                            required
+                            value={confirmPassword}
+                            onChange={(e) => setConfirmPassword(e.target.value)}
+                            placeholder="••••••••"
+                            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring focus:ring-green-400 focus:outline-none text-gray-700"
+                        />
+                    </div>
+
+                    <button
+                        type="submit"
+                        className="w-full bg-green-600 text-white py-2 rounded-lg hover:bg-green-700 transition-all duration-200 font-semibold"
+                    >
+                        Register
+                    </button>
+                </form>
+
+                <p className="mt-6 text-center text-sm text-gray-500">
+                    Already have an account?{' '}
                     <Link
                         to={redirect ? `/login?redirect=${redirect}` : '/login'}
-                        className="text-blue-500 hover:text-blue-700">
+                        className="text-green-600 hover:underline font-medium"
+                    >
                         Sign In
                     </Link>
                 </p>
             </div>
-        </FormContainer>
+        </div>
     );
 }
 

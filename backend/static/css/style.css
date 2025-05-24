@@ -1,0 +1,29 @@
+body {
+    background-color: #f0f0f0;
+    font-family: Arial, sans-serif;
+    padding: 50px;
+    text-align: center;
+}
+
+.container {
+    background: white;
+    padding: 30px;
+    max-width: 400px;
+    margin: auto;
+    border-radius: 10px;
+    box-shadow: 0px 4px 10px rgba(0,0,0,0.1);
+}
+
+.google-button {
+    display: inline-block;
+    background-color: #4285F4;
+    color: white;
+    padding: 10px 20px;
+    border-radius: 5px;
+    text-decoration: none;
+    font-weight: bold;
+}
+
+.google-button:hover {
+    background-color: #357ae8;
+}

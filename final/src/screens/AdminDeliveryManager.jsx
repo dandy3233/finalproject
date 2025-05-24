@@ -47,12 +47,15 @@ const OrderList = () => {
     const matchesDelivered =
       deliveredFilter === "all" || (deliveredFilter === "delivered" ? order.isDelivered : !order.isDelivered);
     const matchesDeliveredBy =
-      deliveredByFilter === "all" || order.delivereBy === deliveredByFilter;
+      deliveredByFilter === "all" || order.deliveredBy === deliveredByFilter;
     return matchesPaid && matchesDelivered && matchesDeliveredBy;
   });
 
   const handleAssign = async () => {
-    if (!assignActor || selectedOrders.length === 0) return;
+    if (!assignActor || selectedOrders.length === 0) {
+      setError("Please select orders and an actor.");
+      return;
+    }
     try {
       const res = await fetch("http://localhost:8000/api/assign_delivery/", {
         method: "POST",
@@ -60,22 +63,25 @@ const OrderList = () => {
         body: JSON.stringify({ order_ids: selectedOrders, delivered_by: assignActor }),
       });
 
-      if (!res.ok) throw new Error("Assignment failed");
+      if (!res.ok) {
+        const errorData = await res.json();
+        throw new Error(errorData.detail || "Assignment failed");
+      }
 
-      const updated = await res.json();
-      console.log(updated);
-
+      const { orders: updatedOrders } = await res.json();
       setOrders((prev) =>
         prev.map((order) =>
-          selectedOrders.includes(order._id)
-            ? { ...order, delivereBy: assignActor }
+          updatedOrders.find((u) => u._id === order._id)
+            ? { ...order, deliveredBy: assignActor, status: "Assigned", confirmation_number: updatedOrders.find((u) => u._id === order._id).confirmation_number }
             : order
         )
       );
       setSelectedOrders([]);
       setAssignActor("");
+      setError("");
     } catch (err) {
       console.error(err);
+      setError(err.message);
     }
   };
 
@@ -88,20 +94,17 @@ const OrderList = () => {
         <Truck className="inline-block mr-2" /> Order Management
       </h1>
 
-      {/* Filters */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
         <select value={paidFilter} onChange={(e) => setPaidFilter(e.target.value)} className="border px-4 py-2 rounded-lg shadow-sm">
           <option value="all">All Payments</option>
           <option value="paid">Paid</option>
           <option value="unpaid">Unpaid</option>
         </select>
-
         <select value={deliveredFilter} onChange={(e) => setDeliveredFilter(e.target.value)} className="border px-4 py-2 rounded-lg shadow-sm">
           <option value="all">All Deliveries</option>
           <option value="delivered">Delivered</option>
           <option value="undelivered">Undelivered</option>
         </select>
-
         <select value={deliveredByFilter} onChange={(e) => setDeliveredByFilter(e.target.value)} className="border px-4 py-2 rounded-lg shadow-sm">
           <option value="all">All Actors</option>
           {actors.map((actor) => (
@@ -110,7 +113,6 @@ const OrderList = () => {
         </select>
       </div>
 
-      {/* Assign Actor */}
       <div className="flex flex-col md:flex-row items-center gap-4 mb-6">
         <select value={assignActor} onChange={(e) => setAssignActor(e.target.value)} className="border px-4 py-2 rounded-lg shadow-sm w-full md:w-auto">
           <option value="">Select Actor</option>
@@ -127,12 +129,11 @@ const OrderList = () => {
         </button>
       </div>
 
-      {/* Orders Table */}
       <div className="overflow-x-auto bg-white rounded-lg shadow">
         <table className="min-w-full text-sm text-left">
           <thead className="bg-gray-100 text-gray-700">
             <tr>
-              <th className="p-3">
+              <th className="p regio-3">
                 <input
                   type="checkbox"
                   checked={filteredOrders.length > 0 && selectedOrders.length === filteredOrders.length}
@@ -149,6 +150,7 @@ const OrderList = () => {
               <th className="p-3">Paid</th>
               <th className="p-3">Delivered</th>
               <th className="p-3">Delivered By</th>
+              <th className="p-3">Status</th>
             </tr>
           </thead>
           <tbody>
@@ -168,7 +170,7 @@ const OrderList = () => {
                   />
                 </td>
                 <td className="p-3">{order.orderNumber}</td>
-                <td className="p-3">{`${order.first_name} ${order.last_name}`}</td>
+                <td className="p-3">{order.first_name + " " + order.last_name}</td>
                 <td className="p-3">{order.phone}</td>
                 <td className="p-3">{order.email}</td>
                 <td className="p-3">
@@ -190,6 +192,15 @@ const OrderList = () => {
                   )}
                 </td>
                 <td className="p-3">{order.delivereBy || "N/A"}</td>
+                <td className="p-3">
+                  <span className={`px-2 py-1 rounded text-white text-xs font-medium ${
+                    order.status === "Assigned" ? "bg-blue-500" :
+                    order.status === "Done" ? "bg-green-600" :
+                    "bg-gray-400"
+                  }`}>
+                    {order.status || "Pending"}
+                  </span>
+                </td>
               </tr>
             ))}
           </tbody>

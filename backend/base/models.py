@@ -74,6 +74,9 @@ class Order(models.Model):
     city = models.CharField(max_length=100, default='Ethiopia')
     state = models.CharField(max_length=100, default='Addis Ababa')
     country = models.CharField(max_length=100, default='Ethiopia')
+    
+    status = models.CharField(max_length=50, default='Pending')  # Pending, Assigned, Delivered
+    confirmation_number = models.CharField(max_length=10, unique=True, null=True, blank=True)  # New field
 
 
     def __str__(self):
@@ -98,7 +101,8 @@ def generate_order_number(sender, instance, **kwargs):
             last_number = 0
 
         instance.orderNumber = f"{prefix}-{last_number + 1:04d}"
-
+    if not instance.confirmation_number:
+        instance.confirmation_number = str(random.randint(100000, 999999))
 
 
 class OrderItem(models.Model):

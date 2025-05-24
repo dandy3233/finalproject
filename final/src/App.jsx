@@ -21,6 +21,7 @@ import Contact from './components/Contact'
 import Advertising from './components/advertising';
 import AdminDeliveryManager from './screens/AdminDeliveryManager'; // Import the new component
 import About from './components/About';
+import DeliveredScreen from './screens/DeliveredScreen';
 
 
 function App() {
@@ -51,6 +52,7 @@ function App() {
             <Route path="/success" element={<PaymentSuccessScreen />} />
             <Route path="/Contact" element={<Contact />} />
             <Route path="/About" element={<About />} />
+            <Route path="/delivered" element={<DeliveredScreen />} />
           </Routes>
 
         </div>
